@@ -205,3 +205,4 @@ lm_model <- lm(Predicted ~ Actual, data = scatter_plot$data)
 
 ------------------------------------------------------------------------------------------
 summary(lm_model)
+
