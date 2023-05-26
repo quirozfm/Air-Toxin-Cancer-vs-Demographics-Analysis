@@ -50,12 +50,15 @@ Variable Importance (based on sum of squares): UNDER5PCT < LINGISOPCT < LOWINCPC
 
 ### VIF Results
 
-| MINORPCT     |           |  
-| LOWINPCT     | -0.818329 | 
-| LESSHSPCT    | 0.875226  | 
-| LINGISPCT    | -0.818329 | 
-| UNDER5PCT    | 0.875226  | 
-| OVER64PCT    | 0.875226  | 
+| Variable    | VIF       |
+|-------------|-----------|
+| MINORPCT    | 2.159948  |
+| LOWINCPCT   | 1.408359  |
+| LESSHSPCT   | 1.811304  |
+| LINGISOPCT  | 1.628834  |
+| UNDER5PCT   | 1.151737  |
+| OVER64PCT   | 1.341494  |
+ 
 
 
 ![Bar_Plot](Images/Bar-R.png)
