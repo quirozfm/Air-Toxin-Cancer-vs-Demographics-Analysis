@@ -1,0 +1,194 @@
+# Load necessary libraries
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+library(tidyverse)
+library(dbscan)
+library(car)
+library(MASS)
+
+#Load the data
+data <- read_excel('F:/Air toxins cancer risk data.xlsx')
+
+# Remove rows with missing values
+clean_data <- na.omit(data)
+
+# Subset the columns of interest
+clean_data <- clean_data[, c("tot_can", "MINORPCT", "LOWINCPCT", "LESSHSPCT", "LINGISOPCT", "UNDER5PCT", "OVER64PCT")]
+
+# Calculate the correlation matrix
+correlation_matrix <- cor(clean_data)
+
+# Transform the correlation matrix into a melted format for visualization
+melted_correlation_matrix <- melt(correlation_matrix)
+
+# Create a heatmap to visualize the correlations between variables
+heatmap_plot <- ggplot(data = melted_correlation_matrix, aes(x=Var1, y=Var2, fill=value)) + 
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                       midpoint = 0, limit = c(-1,1), space = "Lab", 
+                       name="Pearson\nCorrelation") +
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+                                   size = 12, hjust = 1),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.border = element_blank(), 
+        panel.background = element_blank(),
+        legend.justification = c(1, 0),
+        legend.position = c(0.6, 0.7), 
+        legend.direction = "horizontal") +
+  coord_fixed()
+
+# Create a barplot for absolute correlation with 'tot_can'
+barplot <- clean_data %>%
+  gather(key = "variable", value = "correlation", -tot_can) %>%
+  mutate(correlation = abs(correlation)) %>%
+  ggplot(aes(x = reorder(variable, correlation), y = correlation)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(x = "Variables", y = "Correlation with 'tot_can'")
+
+# Exclude non-numeric columns (if any)
+numeric_data <- clean_data[sapply(clean_data, is.numeric)]
+
+# Scale the numeric variables
+scaled_data <- scale(numeric_data)
+
+# Determine optimal number of clusters
+wss <- sapply(1:10, function(k) {
+  kmeans(scaled_data, centers = k, nstart = 10)$tot.withinss
+})
+
+# Based on the plot, choose the optimal number of clusters (the "elbow" point)
+k_optimal <- 3
+
+# Perform k-means clustering
+kmeans_result <- kmeans(scaled_data, centers = k_optimal, nstart = 10)
+
+# Add cluster assignments to the data
+clean_data$cluster <- as.factor(kmeans_result$cluster)
+
+# Explore the clusters
+cluster_means <- aggregate(scaled_data, list(clean_data$cluster), mean)
+print(cluster_means)
+
+# Visualize the clusters using a scatter plot
+scatter_plot <- ggplot(clean_data, aes(x = MINORPCT, y = tot_can, color = cluster)) +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "k-means Clustering of the Dataset", x = "Minority Percentage", y = "Total Cancer Risk")
+
+# Print the heatmap plot, barplot, and scatter plot
+print(heatmap_plot)
+print(barplot)
+print(scatter_plot)
+
+# Split the data into training and test sets
+set.seed(123)  # for reproducibility
+train_index <- sample(1:nrow(clean_data), nrow(clean_data) * 0.8)
+train_set <- clean_data[train_index, ]
+test_set <- clean_data[-train_index, ]
+
+# Perform linear regression
+lm_model <- lm(tot_can ~ ., data = train_set)
+
+# Get the predictions on the test set
+lm_pred <- predict(lm_model, newdata = test_set)
+
+# Calculate the mean squared error of the predictions
+mse <- mean((test_set$tot_can - lm_pred)^2)
+print(paste("Linear regression MSE:", mse))
+
+# Visualize the predicted values vs. actual values
+plot_data <- data.frame(Actual = test_set$tot_can, Predicted = lm_pred)
+scatter_plot <- ggplot(plot_data, aes(x = Actual, y = Predicted)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "red") +
+  labs(title = "Linear Regression: Actual vs. Predicted", x = "Actual", y = "Predicted")
+
+# Fit the linear regression model
+lm_model <- lm(Predicted ~ Actual, data = scatter_plot$data)
+
+# Print the model summary
+summary(lm_model)
+
+# Access the coefficients
+coefficients(lm_model)
+
+# Access the p-values
+summary(lm_model)$coefficients[, "Pr(>|t|)"]
+
+# Access the R-squared value
+summary(lm_model)$r.squared
+
+# Print the significant variables
+print(significant_vars)
+# Print the scatter plot
+print(scatter_plot)
+
+# Load the data
+data <- read_excel('F:/Air toxins cancer risk data.xlsx')
+
+# Remove rows with missing values
+clean_data <- na.omit(data)
+
+# Subset the columns of interest
+clean_data <- clean_data[, c("tot_can", "MINORPCT", "LOWINCPCT", "LESSHSPCT", "LINGISOPCT", "UNDER5PCT", "OVER64PCT")]
+
+# Perform linear regression
+lm_model <- lm(tot_can ~ ., data = clean_data)
+#stepwise
+stepwise_model <- stepAIC(lm_model, direction = "both")
+# Access the coefficients and p-values
+summary(lm_model)$coefficients[, c("Estimate", "Pr(>|t|)")]
+
+# Access the most significant variables based on p-values
+significant_vars <- names(summary(lm_model)$coefficients[summary(lm_model)$coefficients[, "Pr(>|t|)"] < 0.05, ])
+
+# Print the significant variables
+print(significant_vars)
+
+# Check for multicollinearity using variance inflation factor (VIF)
+vif(lm_model)
+
+# Examine residual plots
+plot(lm_model, which = c(1, 2, 3, 5))
+
+# Implement k-fold cross-validation for model evaluation
+train_control <- trainControl(method = "cv", number = 5)
+cv_model <- train(tot_can ~ ., data = clean_data, method = "lm", trControl = train_control)
+
+# Print the summary of the linear regression model
+print(summary(lm_model))
+
+# Split the data into training and test sets
+set.seed(123)  # for reproducibility
+train_index <- sample(1:nrow(clean_data), nrow(clean_data) * 0.8)
+train_set <- clean_data[train_index, ]
+test_set <- clean_data[-train_index, ]
+
+# Perform linear regression on the training set
+lm_model <- lm(tot_can ~ ., data = train_set)
+
+# Get the predictions on the test set
+lm_pred <- predict(lm_model, newdata = test_set)
+
+# Calculate the mean squared error of the predictions
+mse <- mean((test_set$tot_can - lm_pred)^2)
+print(paste("Linear regression MSE:", mse))
+
+# Visualize the predicted values vs. actual values
+plot_data <- data.frame(Actual = test_set$tot_can, Predicted = lm_pred)
+scatter_plot <- ggplot(plot_data, aes(x = Actual, y = Predicted)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "red") +
+  labs(title = "Linear Regression: Actual vs. Predicted", x = "Actual", y = "Predicted")
+
+# Fit the linear regression model
+lm_model <- lm(Predicted ~ Actual, data = scatter_plot$data)
+
+# Print the model summary
+summary(lm_model)
