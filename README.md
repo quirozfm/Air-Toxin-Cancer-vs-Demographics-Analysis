@@ -15,7 +15,7 @@ ___________________________________________
 
 ## Dataset
 ___________________________________________
-   The data utilized in this study originates from the Environmental Justice (EJ) Screen dataset, accessible on the EPA's website. Essential variables include total cancer cases (tot_can), percentage of minority population (MINORPCT), percentage of low-income population (LOWINCPCT), percentage of population with less than high school education (LESSHSPCT), percentage of linguistically isolated population (LINGISOPCT), percentage of population under 5 years old (UNDER5PCT), and percentage of population over 64 years old (OVER64PCT). These variables have been chosen based on their relevance to the study's aim of examining the interplay between air toxins, cancer risk, and demographic vulnerability.
+The data utilized in this study originates from the Environmental Justice (EJ) Screen dataset, accessible on the EPA's website. Essential variables include total cancer cases (tot_can), percentage of minority population (MINORPCT), percentage of low-income population (LOWINCPCT), percentage of population with less than high school education (LESSHSPCT), percentage of linguistically isolated population (LINGISOPCT), percentage of population under 5 years old (UNDER5PCT), and percentage of population over 64 years old (OVER64PCT). These variables have been chosen based on their relevance to the study's aim of examining the interplay between air toxins, cancer risk, and demographic vulnerability.
    
 ## Tools and Librries Used
 ___________________________________________
@@ -36,8 +36,6 @@ Upon obtaining the data, initial steps were taken to ensure its quality and suit
 2.  Rectifying any data entry errors
 3.  Transforming variables as needed for analysis
 
-# Insert your R code for Data Cleaning here
-
 ## Exploratory Data Analysis
 ___________________________________________
 The cleaned data was then explored to identify any interesting patterns or relationships among the variables. This included:
@@ -46,7 +44,6 @@ The cleaned data was then explored to identify any interesting patterns or relat
 2.  Undertaking correlation analysis
 3.  Visualizing data via various graphs and plots
 
-# Insert your R code for Exploratory Data Analysis here
 
 ## Model Building
 ___________________________________________
@@ -57,14 +54,14 @@ A linear regression model was developed to understand the relationship between a
 3.  Validating the model using the test data
 4.  Evaluating the model's performance through metrics like Mean Squared Error (MSE), R-squared, and Adjusted R-squared
 
-# Insert your R code for Model Building here
-
 # Results
 ___________________________________________
 
 The results, presented through various charts, plots, and tables, offer valuable insights into the relationship between air toxins, cancer incidence, and demographic vulnerability.
 
 ### Correlation Matrix
+
+The correlation matrix is a tabular representation of the pairwise correlation between all your variables. In my study, the correlation matrix gives an initial insight into the relationship between different demographic vulnerability and air toxins indicators with total cancer incidence (tot_can). For instance, 'MINORPCT' (the percentage of minority population) has a positive correlation of 0.26 with 'tot_can', indicating that areas with a higher proportion of minority population have a higher incidence of cancer. 'OVER64PCT' (the percentage of population over 64 years old) has a negative correlation of -0.37 with 'tot_can', suggesting that areas with a higher elderly population tend to have lower cancer incidence.
 
 ![Pearson_Corelation](Images/Pearson-R.png)
 
@@ -82,6 +79,8 @@ The results, presented through various charts, plots, and tables, offer valuable
 
 ### Cluster Means 
 
+The cluster means table shows the mean values of each variable per group or cluster. It's generated from a clustering algorithm like K-means. This analysis can help identify patterns or groups within your data. For instance, group 1 has the highest mean 'MINORPCT' and a positive mean 'tot_can', suggesting that this group of areas is characterized by a higher proportion of minority population and a higher incidence of cancer.
+
 ![KNN Plot](Images/KNN%20plot.png)
 
 | Group | tot_can   | MINORPCT  | LOWINCPCT | LESSHSPCT | LINGISOPCT | UNDER5PCT | OVER64PCT |
@@ -92,6 +91,9 @@ The results, presented through various charts, plots, and tables, offer valuable
 ---------------------------------------------------------------------------------------------------
 
 ### Linear Regression 
+
+The linear regression section presents the estimates of the coefficients from our linear regression model and their p-values. It shows how much each predictor variable is estimated to affect the dependent variable (tot_can), holding all other predictors constant. The coefficient for 'MINORPCT' is 16.627, meaning that for each unit increase in the percentage of minority population, the total cancer incidence is expected to increase by approximately 16.627, assuming all other variables stay constant. Also, the model's Mean Squared Error (MSE) is presented, which quantifies the average squared difference between the actual and predicted values - a measure of model performance.
+
 Model MSE: 31.8514653229928
 
 Coefficients and P-values:
@@ -110,8 +112,9 @@ Coefficients and P-values:
 
 ### Stepwise AIC Results
 
-The model with the lowest AIC is the one without any removal of predictors.
+The stepwise AIC procedure helps to identify the most optimal set of predictors for the model based on the Akaike Information Criterion (AIC). In my analysis, the best model was the one without any removal of predictors, meaning all predictor variables contribute to the explanation of variance in total cancer incidence.
 
+The model with the lowest AIC is the one without any removal of predictors.
 Variable Importance (based on sum of squares): UNDER5PCT < LINGISOPCT < LOWINCPCT < MINORPCT < LESSHSPCT < OVER64PCT
 
 ### VIF Results
@@ -124,15 +127,22 @@ Variable Importance (based on sum of squares): UNDER5PCT < LINGISOPCT < LOWINCPC
 | LINGISOPCT  | 1.628834  |
 | UNDER5PCT   | 1.151737  |
 | OVER64PCT   | 1.341494  |
----------------------------------------------------------------------------------------------------
- 
 
+    The VIF scores are all below the common threshold of 5, indicating there isn't any serious multicollinearity issue among our predictor variables.
+---------------------------------------------------------------------------------------------------
+ ## Residual Plots
+ 
+These residual (difference in predicted vs observed) plots help diagnose our model. We look for assumptions of the linearity, normality, and homoscedasticity of residuals. Any patterns or deviations in these plots can indicate a violation of these assumptions.
+
+![Linear](Images/Bar-R.png)
+![Linear](Images/Bar-R.png)
+![Linear](Images/Bar-R.png)
 
 ![Bar_Plot](Images/Bar-R.png)
 
 # Conclusion
 ___________________________________________
-In conclusion, the study offers a detailed understanding of how air toxins contribute to cancer incidences and how these are influenced by various demographic factors. These findings can help formulate effective strategies to mitigate the risk of cancer in vulnerable communities, and inform policy decisions.
+In conclusion, my study offers a detailed understanding of how air toxins contribute to cancer incidences and how these are influenced by various demographic factors. These findings can help formulate effective strategies to mitigate the risk of cancer in vulnerable communities, and inform policy decisions.
 
 ## References
 ___________________________________________
